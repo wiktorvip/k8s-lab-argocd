@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: istio-base
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            env_name: 'dev'
+          # matchExpressions:
+          #   - {key: ingress-nginx, operator: DoesNotExist}            
+        values:
+          istioVersion: 1.24.3
+
+  template:
+    metadata:
+      name: 'istio-base-{{.name}}'
+      labels:
+        applicationset: istio-base
+        app: 'istio-install'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      sources:
+ 
+        - repoURL: https://istio-release.storage.googleapis.com/charts
+          chart: istio/base
+          targetRevision: '{{.values.istioVersion}}'
+ 
+      destination:
+        server: '{{.server}}'
+        namespace: istio-system
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+ 
