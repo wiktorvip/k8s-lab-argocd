@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: app-test1
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            env_name: 'dev'
+          matchExpressions:
+            - {key: ingress-nginx, operator: DoesNotExist}            
+ 
+  template:
+    metadata:
+      name: 'app-test1-{{.name}}'
+      labels:
+        applicationset: app-test1
+        app: 'app-test1'
+        environment: '{{.metadata.labels.env_name}}'
+        region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      sources:
+        - repoURL: 'https://github.com/wiktorvip/k8s-lab-argocd'
+          path: app-test1
+          targetRevision: 'main'
+          helm:  
+             releaseName: app-test1
+             valueFiles:
+               - $values/app-test1/values.yaml
+      destination:
+        server: '{{.server}}'
+        namespace: app1
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+ 
