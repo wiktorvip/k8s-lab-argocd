@@ -35,6 +35,9 @@ spec:
         server: '{{.server}}'
         namespace: app1
       syncPolicy:
+        automated:
+          prune: false
+          selfHeal: false
         syncOptions:
           - CreateNamespace=true
   syncPolicy:
