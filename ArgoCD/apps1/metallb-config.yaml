@@ -18,14 +18,14 @@ spec:
       name: 'metallb-config-{{.name}}'
       labels:
         applicationset: metallb-config
-        app: 'metallb-config'
+        app: 'metallb'
         environment: '{{.metadata.labels.env_name}}'
         #region: '{{.metadata.labels.location}}'
     spec:
       project: "default"
       sources:
         - repoURL: 'https://github.com/wiktorvip/k8s-lab-argocd'
-          path: metallb-config
+          path: metallb/metallb-config
           targetRevision: 'main'
           helm:  
              releaseName: metallb-config
