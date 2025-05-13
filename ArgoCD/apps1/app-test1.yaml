@@ -27,6 +27,7 @@ spec:
         - repoURL: 'https://github.com/wiktorvip/k8s-lab-argocd'
           path: app-test1
           targetRevision: 'main'
+          ref: values
           helm:  
              releaseName: app-test1
              valueFiles:
