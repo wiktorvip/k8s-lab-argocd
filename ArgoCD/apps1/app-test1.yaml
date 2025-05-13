@@ -23,7 +23,7 @@ spec:
         #region: '{{.metadata.labels.location}}'
     spec:
       project: "default"
-      source:
+      sources:
         - repoURL: 'https://github.com/wiktorvip/k8s-lab-argocd'
           path: app-test1
           targetRevision: 'main'
