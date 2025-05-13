@@ -30,7 +30,7 @@ spec:
           helm:  
              releaseName: app-test1
              valueFiles:
-               - app-test1/values.yaml
+               - /app-test1/values.yaml
       destination:
         server: '{{.server}}'
         namespace: app1
