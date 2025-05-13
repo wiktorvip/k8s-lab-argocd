@@ -20,7 +20,7 @@ spec:
         applicationset: app-test1
         app: 'app-test1'
         environment: '{{.metadata.labels.env_name}}'
-        region: '{{.metadata.labels.location}}'
+        #region: '{{.metadata.labels.location}}'
     spec:
       project: "default"
       sources:
