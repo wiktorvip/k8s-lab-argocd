@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: metallb-config
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            env_name: 'dev'
+          # matchExpressions:
+          #   - {key: ingress-nginx, operator: DoesNotExist}            
+ 
+  template:
+    metadata:
+      name: 'metallb-config-{{.name}}'
+      labels:
+        applicationset: metallb-config
+        app: 'metallb-config'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      sources:
+        - repoURL: 'https://github.com/wiktorvip/k8s-lab-argocd'
+          path: metallb-config
+          targetRevision: 'main'
+          helm:  
+             releaseName: metallb-config
+             valueFiles:
+               - /metallb/metallb-config/values.yaml
+      destination:
+        server: '{{.server}}'
+        namespace: metallb-system
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+    automated:
+      prune: false
+      selfHeal: false

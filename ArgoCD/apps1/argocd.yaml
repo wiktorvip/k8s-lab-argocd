@@ -3,6 +3,10 @@ kind: Application
 metadata:
   name: argocd
   namespace: argocd
+  labels:
+    applicationset: app-test1
+    app: 'app-test1'
+    environment: '{{.metadata.labels.env_name}}'
 spec:
   project: default
   sources:
