@@ -6,13 +6,18 @@ metadata:
 spec:
   project: default
   source:
-    chart: argo-cd
-    repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: 7.9.0
-    helm:
-      releaseName: argocd
-      valueFiles:
-         - $values/ArgoCD/values/values.yaml
+    - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
+      targetRevision: main
+      ref: values
+
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      path: argo-cd
+      targetRevision: 7.7.7
+      helm:
+        releaseName: argocd
+        valueFiles:
+          - $values/ArgoCD/values/values.yaml
   destination:
     name: in-cluster
     namespace: argocd
