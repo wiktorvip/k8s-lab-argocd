@@ -5,8 +5,8 @@ metadata:
   namespace: argocd
   labels:
     applicationset: app-test1
-    app: 'app-test1'
-    environment: '{{.metadata.labels.env_name}}'
+    app: app-test1
+    #environment: '{{.metadata.labels.env_name}}'
 spec:
   destination:
     name: in-cluster
