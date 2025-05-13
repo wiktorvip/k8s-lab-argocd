@@ -10,8 +10,8 @@ spec:
         selector:
           matchLabels:
             env_name: 'dev'
-          matchExpressions:
-            - {key: ingress-nginx, operator: DoesNotExist}            
+          # matchExpressions:
+          #   - {key: ingress-nginx, operator: DoesNotExist}            
  
   template:
     metadata:
@@ -27,11 +27,10 @@ spec:
         - repoURL: 'https://github.com/wiktorvip/k8s-lab-argocd'
           path: app-test1
           targetRevision: 'main'
-          ref: values
           helm:  
              releaseName: app-test1
              valueFiles:
-               - $values/app-test1/values.yaml
+               - app-test1/values.yaml
       destination:
         server: '{{.server}}'
         namespace: app1
