@@ -1,46 +1,60 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: metallb
   namespace: argocd
-  labels:
-    applicationset: metallb
-    app: 'metallb'
-    environment: '{{.metadata.labels.env_name}}'
 spec:
-  project: default
-  sources:
-    - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
-      targetRevision: main
-      ref: values
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            env_name: 'dev'
+          # matchExpressions:
+          #   - {key: ingress-nginx, operator: DoesNotExist}            
+ 
+  template:
+    metadata:
+      name: 'metallb-{{.name}}'
+      labels:
+        applicationset: metallb
+        app: 'metallb'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      sources:
+        - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
+          targetRevision: main
+          ref: values
 
-    - repoURL: https://metallb.github.io/metallb
-      chart: metallb
-      targetRevision: 0.14.6
-      helm:
-        releaseName: metallb
-        valueFiles:
-          - $values/metallb/values/values.yaml
-  ignoreDifferences:
-    - group: "apiextensions.k8s.io"
-      kind: CustomResourceDefinition
-      name: bgppeers.metallb.io
-      jsonPointers:
-        - /spec/conversion/webhook/clientConfig/caBundle
-    - group: "apiextensions.k8s.io"
-      kind: CustomResourceDefinition
-      name: addresspools.metallb.io
-      jsonPointers:
-        - /spec/conversion/webhook/clientConfig/caBundle
-  destination:
-    name: in-cluster
-    namespace: metallb-system
+        - repoURL: https://metallb.github.io/metallb
+          chart: metallb
+          targetRevision: 0.14.6
+          helm:
+            releaseName: metallb
+            valueFiles:
+              - $values/metallb/values/values.yaml
+      ignoreDifferences:
+        - group: "apiextensions.k8s.io"
+          kind: CustomResourceDefinition
+          name: bgppeers.metallb.io
+          jsonPointers:
+            - /spec/conversion/webhook/clientConfig/caBundle
+        - group: "apiextensions.k8s.io"
+          kind: CustomResourceDefinition
+          name: addresspools.metallb.io
+          jsonPointers:
+            - /spec/conversion/webhook/clientConfig/caBundle
+      destination:
+        server: '{{.server}}'
+        namespace: metallb-system
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
   syncPolicy:
+    preserveResourcesOnDeletion: true
     automated:
       prune: false
-      selfHeal: true
-    syncOptions:
-      - ServerSideApply=true
-      - CreateNamespace=true
-      - RespectIgnoreDifferences=true
+      selfHeal: false
 
