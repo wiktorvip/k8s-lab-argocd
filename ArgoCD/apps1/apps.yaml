@@ -7,7 +7,7 @@ spec:
   destination:
     name: in-cluster
     namespace: argocd
-  sources:
+  source:
     path: ArgoCD/apps1
     repoURL: 'https://github.com/wiktorvip/k8s-lab-argocd'
     targetRevision: HEAD
