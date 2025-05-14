@@ -15,7 +15,7 @@ spec:
         values:
           istioVersion: 1.24.3
           istioRevision: 1-24-3
-       
+
   template:
     metadata:
       name: 'istio-cni-{{.name}}'
@@ -37,6 +37,7 @@ spec:
           helm:
             values: |
               revision: {{.values.istioRevision}}
+              hub: docker.io/istio
               tag: {{.values.istioVersion}}
             valueFiles:
               - $values/ServiceMesh/istio-install/values/istio-cni-values.yaml
