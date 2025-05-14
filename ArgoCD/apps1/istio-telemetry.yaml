@@ -3,16 +3,26 @@ kind: ApplicationSet
 metadata:
   name: istio-telemetry
   namespace: argocd
+# spec:
+#   goTemplate: true
+#   generators:
+#     - clusters:
+#         selector:
+#           matchLabels:
+#             env_name: 'dev'
+#           matchExpressions:
+#             - {key: ingress-nginx, operator: DoesNotExist}            
+ 
 spec:
   goTemplate: true
   generators:
-    - clusters:
-        selector:
-          matchLabels:
-            env_name: 'dev'
-          matchExpressions:
-            - {key: ingress-nginx, operator: DoesNotExist}            
- 
+   - matrix:
+      generators:
+      - clusters:
+          selector:
+            matchExpressions:
+              - {key: ingress-nginx, operator: DoesNotExist}      
+
   template:
     metadata:
       name: 'istio-telemetry-{{.name}}'
