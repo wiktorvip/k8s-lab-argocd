@@ -28,7 +28,7 @@ spec:
       sources:
  
         - repoURL: https://istio-release.storage.googleapis.com/charts
-          chart: istio/base
+          chart: base #istio/base
           targetRevision: '{{.values.istioVersion}}'
  
       destination:
