@@ -50,7 +50,7 @@ spec:
           ref: values
  
         - repoURL: https://istio-release.storage.googleapis.com/charts
-          chart: istio/istiod
+          chart: istiod
           targetRevision: '{{.values.istioVersion}}'
           helm:
             values: |
