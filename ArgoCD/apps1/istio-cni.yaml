@@ -1,51 +1,51 @@
-# apiVersion: argoproj.io/v1alpha1
-# kind: ApplicationSet
-# metadata:
-#   name: istio-cni
-#   namespace: argocd
-# spec:
-#   goTemplate: true
-#   generators:
-#     - clusters:
-#         selector:
-#           matchLabels:
-#             env_name: 'dev'
-#           # matchExpressions:
-#           #   - {key: ingress-nginx, operator: DoesNotExist}            
-#         values:
-#           istioVersion: 1.24.3
-#           istioRevision: 1-24-3
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: istio-cni
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            env_name: 'dev'
+          # matchExpressions:
+          #   - {key: ingress-nginx, operator: DoesNotExist}            
+        values:
+          istioVersion: 1.24.3
+          istioRevision: 1-24-3
        
-#   template:
-#     metadata:
-#       name: 'istio-cni-{{.name}}'
-#       labels:
-#         applicationset: istio-cni
-#         app: 'istio-install'
-#         environment: '{{.metadata.labels.env_name}}'
-#         #region: '{{.metadata.labels.location}}'
-#     spec:
-#       project: "default"
-#       sources:
-#         - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
-#           targetRevision: 'main'
-#           ref: values
+  template:
+    metadata:
+      name: 'istio-cni-{{.name}}'
+      labels:
+        applicationset: istio-cni
+        app: 'istio-install'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      sources:
+        - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
+          targetRevision: 'main'
+          ref: values
                
-#         - repoURL: https://istio-release.storage.googleapis.com/charts
-#           chart: istio/cni
-#           targetRevision: '{{.values.istioVersion}}'
-#           helm:
-#             values: |
-#               revision: {{.values.istioRevision}}
-#               tag: {{.values.istioVersion}}
-#             valueFiles:
-#               - $values/Helpers/Helm/ServiceMesh/istio-install-helm/{{.metadata.labels.env_name}}/{{.name}}/istio-cni-values.yaml
-#       destination:
-#         server: '{{.server}}'
-#         namespace: istio-system
-#       syncPolicy:
-#         syncOptions:
-#           - CreateNamespace=true
-#   syncPolicy:
-#     preserveResourcesOnDeletion: true
+        - repoURL: https://istio-release.storage.googleapis.com/charts
+          chart: cni
+          targetRevision: '{{.values.istioVersion}}'
+          helm:
+            values: |
+              revision: {{.values.istioRevision}}
+              tag: {{.values.istioVersion}}
+            valueFiles:
+              - $values/ServiceMesh/istio-install/values/istio-cni-values.yaml
+      destination:
+        server: '{{.server}}'
+        namespace: istio-system
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+  syncPolicy:
+    preserveResourcesOnDeletion: true
  
