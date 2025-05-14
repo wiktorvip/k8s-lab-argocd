@@ -1,0 +1,10 @@
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: tm-mesh-default
+  namespace: {{ .Values.namespace }}
+spec:
+  tracing:
+  - providers:
+    - name: zipkin
+    randomSamplingPercentage: {{ .Values.telemetry.randomSamplingPercentage }}
