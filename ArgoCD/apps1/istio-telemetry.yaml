@@ -8,8 +8,6 @@ spec:
   generators:
     - clusters:
         selector:
-          matchLabels:
-            env_name: 'dev'
           matchExpressions:
             - {key: ingress-nginx, operator: DoesNotExist}            
  
