@@ -37,8 +37,11 @@ spec:
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
+        automated:
+          prune: false
+          selfHeal: true
   syncPolicy:
     preserveResourcesOnDeletion: true
     automated:
       prune: false
-      selfHeal: false
+      selfHeal: true

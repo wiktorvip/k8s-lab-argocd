@@ -1,0 +1,10 @@
+{{- if not .Values.addCluster }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sc-argocd-{{ .Values.clusterName }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/service-account.name: sc-argocd-{{ .Values.clusterName }}
+type: kubernetes.io/service-account-token
+{{- end }}
