@@ -1,0 +1,28 @@
+name: istio-egressgateway
+ 
+replicaCount: 2
+ 
+serviceAccount:
+  name: istio-egressgateway-service-account
+ 
+service:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8443
+    - name: http2
+      port: 80
+      targetPort: 8080
+ 
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+ 
+resources:
+  requests:
+    cpu: 200m #parameter to tweak
+  limits:
+    cpu: 500m #parameter to tweak
+ 
