@@ -18,11 +18,5 @@ service:
 autoscaling:
   enabled: true
   minReplicas: 2
-  maxReplicas: 5
- 
-resources:
-  requests:
-    cpu: 200m #parameter to tweak
-  limits:
-    cpu: 500m #parameter to tweak
+  maxReplicas: 3
  
