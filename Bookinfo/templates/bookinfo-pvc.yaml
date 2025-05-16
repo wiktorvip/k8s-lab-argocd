@@ -1,0 +1,64 @@
+{{- if .Values.ingressNginxIP }}
+ 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: bookinfo-pv-testpvc
+spec:
+   capacity:
+     storage: 1Gi
+   accessModes:
+     - ReadWriteOnce
+   storageClassName: default
+   hostPath:
+     path: /tmp/data
+   persistentVolumeReclaimPolicy: Delete
+ 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: bookinfo-pvc-testpvc
+   namespace: bookinfo
+spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 1Gi
+ 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+   name: bookinfo-testpvc
+   namespace: bookinfo
+spec:
+  containers:
+  - name: testpvc
+    image: {{ .Values.images.busybox }}
+    command: ["/bin/sh", "-c"]
+    args:
+     - |
+       if [ ! -f /mnt/testpvc/file.txt ];
+       then
+        echo "Testing the PVC by writing this file to it" > /mnt/testpvc/file.txt;
+        if [ $? -eq 0 ];then
+          echo "File written succesfully";
+        else
+          echo "Failed to write file" && exit 1
+        fi
+       fi
+       # keep the pod running after the file is written
+       while true; do sleep 3600; done
+    volumeMounts:
+    - mountPath: /mnt/testpvc
+      name: testpvc-volume
+  volumes:
+  - name: testpvc-volume
+    persistentVolumeClaim:
+      claimName: bookinfo-pvc-testpvc
+  restartPolicy: Always
+ 
+{{- end }}
+ 
