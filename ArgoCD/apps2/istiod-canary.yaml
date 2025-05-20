@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: istiod-canary
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            env_name: 'dev'
+          matchExpressions:
+            - {key: ingress-nginx, operator: DoesNotExist}                
+        values:
+          istioVersion: 1.24.3
+          istioRevision: prod-canary
+
+  template:
+    metadata:
+      name: 'istiod-canary-{{.name}}'
+      labels:
+        applicationset: istiod-canary
+        app: 'istio-install'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+    # Ignore this, because it is automatically changed, resulting in out-of-sync
+      ignoreDifferences:
+        # istio-validator-{revision}-istio-system
+        - group: "admissionregistration.k8s.io"
+          kind: ValidatingWebhookConfiguration
+          jqPathExpressions:
+            - .webhooks[] | select(.name == "rev.validation.istio.io") | .failurePolicy
+        # istio-side-car-injected-{revision}
+        # - group: "admissionregistration.k8s.io"
+        #   kind: MutatingWebhookConfiguration
+        #   jqPathExpressions:
+        #     - >
+        #       .webhooks[]
+        #       | select(.name == "rev.object.sidecar-injector.istio.io" or .name == "rev.namespace.sidecar-injector.istio.io")
+        #       | .namespaceSelector.matchExpressions[]
+        #       | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")
+ 
+ 
+      project: "default"
+      sources:
+        - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
+          targetRevision: 'main'
+          ref: values
+ 
+        - repoURL: https://istio-release.storage.googleapis.com/charts
+          chart: istiod
+          targetRevision: '{{.values.istioVersion}}'
+          helm:
+            values: |
+              revision: {{.values.istioRevision}}
+              global:
+                tag: {{.values.istioVersion}}
+            valueFiles:
+              - $values/ServiceMesh/istio-install/{{.metadata.labels.env_name}}/{{.name}}/istiod-values.yaml
+      destination:
+        server: '{{.server}}'
+        namespace: istio-system
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+  syncPolicy:
+    preserveResourcesOnDeletion: true
