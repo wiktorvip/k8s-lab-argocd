@@ -13,7 +13,7 @@ spec:
           matchExpressions:
             - {key: ingress-nginx, operator: DoesNotExist}            
         values:
-          istioVersion: 1.24.3
+          istioVersion: 1.25.3
 
   template:
     metadata:
