@@ -3,7 +3,13 @@ autoscaleMin: 1
 autoscaleMax: 2
  
 replicaCount: 1
- 
+
+resources:
+  requests:
+    mem: 1G
+  limits:
+    mem: 1G
+
 cni:
   enabled: true
  
