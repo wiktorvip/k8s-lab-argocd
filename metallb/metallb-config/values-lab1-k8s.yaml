@@ -1,0 +1,3 @@
+metallbConfig:
+  name: metallb-default
+  ipAddresses: 10.0.0.240-10.0.0.247

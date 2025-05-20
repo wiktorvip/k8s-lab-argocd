@@ -30,7 +30,7 @@ spec:
           helm:  
              releaseName: metallb-config
              valueFiles:
-               - /metallb/metallb-config/values.yaml
+               - /metallb/metallb-config/values-{{.name}}.yaml
       destination:
         server: '{{.server}}'
         namespace: metallb-system

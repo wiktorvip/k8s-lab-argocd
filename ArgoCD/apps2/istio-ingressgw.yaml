@@ -38,7 +38,7 @@ spec:
             values: |
               revision: {{.values.istioRevision}}
             valueFiles:
-              - $values/ServiceMesh/istio-install/values/istio-ingressgateway-values.yaml
+              - $values/ServiceMesh/istio-install/{{.metadata.labels.env_name}}/{{.name}}/istio-ingressgateway-values.yaml
       destination:
         server: '{{.server}}'
         namespace: istio-system

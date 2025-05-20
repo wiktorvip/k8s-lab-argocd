@@ -1,8 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: istio-cni
-  namespace: argocd
+  name: istio-multicluster
+  namespace: gemz
 spec:
   goTemplate: true
   generators:
@@ -10,17 +10,18 @@ spec:
         selector:
           # matchLabels:
           #   env_name: 'dev'
+          #   shared: 'true'
           matchExpressions:
-            - {key: ingress-nginx, operator: DoesNotExist}               
+            - {key: ingress-nginx, operator: DoesNotExist}              
         values:
           istioVersion: 1.24.3
           istioRevision: 1-24-3
 
   template:
     metadata:
-      name: 'istio-cni-{{.name}}'
+      name: 'istio-multicluster-{{.name}}'
       labels:
-        applicationset: istio-cni
+        applicationset: istio-multicluster
         app: 'istio-install'
         environment: '{{.metadata.labels.env_name}}'
         #region: '{{.metadata.labels.location}}'
@@ -30,17 +31,19 @@ spec:
         - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
           targetRevision: 'main'
           ref: values
-               
+ 
+        - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
+          targetRevision: 'main'
+          path: Helpers/Helm/ServiceMesh/istio-install-helm/{{.metadata.labels.env_name}}/{{.name}}/multicluster
+       
         - repoURL: https://istio-release.storage.googleapis.com/charts
-          chart: cni
+          chart: gateway
           targetRevision: '{{.values.istioVersion}}'
           helm:
             values: |
               revision: {{.values.istioRevision}}
-              hub: docker.io/istio
-              tag: {{.values.istioVersion}}
             valueFiles:
-              - $values/ServiceMesh/istio-install/{{.metadata.labels.env_name}}/{{.name}}/istio-cni-values.yaml
+              - $values/ServiceMesh/istio-install/{{.metadata.labels.env_name}}/{{.name}}/istio-eastwestgateway-values.yaml
       destination:
         server: '{{.server}}'
         namespace: istio-system

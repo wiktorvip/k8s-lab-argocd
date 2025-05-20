@@ -1,0 +1,43 @@
+autoscaleEnabled: true
+autoscaleMin: 2
+autoscaleMax: 3
+ 
+replicaCount: 1
+ 
+cni:
+  enabled: true
+ 
+ 
+meshConfig:
+  accessLogFile: "/dev/stdout"
+  accessLogEncoding: "JSON"
+ 
+  tlsDefaults:
+    ecdhCurves:
+      - P-256
+      - P-384
+ 
+
+  tcpKeepalive:
+    probes: 1
+    time: 60s
+    interval: 60s
+ 
+ 
+  enableTracing: true  
+ 
+  defaultConfig:
+    proxyMetadata:
+      #Enable basic DNS proxying
+      ISTIO_META_DNS_CAPTURE: "true"
+      #Enable automatic address allocation, optional
+      ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      ISTIO_META_IDLE_TIMEOUT: 1h
+ 
+ 
+global:
+  meshID: mesh1
+  multiCluster:
+    enabled: true
+    clusterName: "cluster2"
+  network: "network2"

@@ -1,0 +1,35 @@
+name: istio-eastwestgateway
+ 
+replicaCount: 2
+ 
+serviceAccount:
+  name: istio-eastwestgateway-sa
+
+env:
+  ISTIO_META_REQUESTED_NETWORK_VIEW: "network1"
+
+service:
+  type: LoadBalancer
+  ports:
+  - name: status-port
+    port: 15021
+    targetPort: 15021
+  - name: tls
+    port: 15443
+    targetPort: 15443
+  - name: tls-istiod  
+    port: 15012
+    targetPort: 15012
+  - name: tls-webhook
+    port: 15017
+    targetPort: 15017
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+
+labels:
+  app: istio-eastwestgateway
+  istio: eastwestgateway
+  topology.istio.io/network: "network1"
