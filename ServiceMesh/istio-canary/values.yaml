@@ -1,0 +1,3 @@
+istio:
+  tag: prod-stable
+  revision: 1-25-3

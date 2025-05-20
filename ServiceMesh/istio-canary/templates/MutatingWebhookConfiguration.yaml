@@ -1,0 +1,72 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: istio-revision-tag-prod-canary
+  labels:
+    istio.io/tag: {{ .Values.istio.tag }}
+    istio.io/rev: "{{ .Values.istio.revision }}"
+    app: sidecar-injector
+    release: istiod
+webhooks:
+- name: rev.namespace.sidecar-injector.istio.io
+  clientConfig:
+    service:
+      name: istiod-{{ .Values.istio.revision }}
+      namespace: istio-system
+      path: "/inject"
+      port: 443
+  sideEffects: None
+  rules:
+  - operations: [ "CREATE" ]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  failurePolicy: Fail
+  reinvocationPolicy: "Never"
+  admissionReviewVersions: ["v1"]
+  namespaceSelector:
+    matchExpressions:
+    - key: istio.io/rev
+      operator: In
+      values:
+      - "{{ .Values.istio.tag }}"
+    - key: istio-injection
+      operator: DoesNotExist
+  objectSelector:
+    matchExpressions:
+    - key: sidecar.istio.io/inject
+      operator: NotIn
+      values:
+      - "false"
+- name: rev.object.sidecar-injector.istio.io
+  clientConfig:
+    service:
+      name: istiod-{{ .Values.istio.revision }}
+      namespace: istio-system
+      path: "/inject"
+      port: 443
+  sideEffects: None
+  rules:
+  - operations: [ "CREATE" ]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  failurePolicy: Fail
+  reinvocationPolicy: "Never"
+  admissionReviewVersions: ["v1"]
+  namespaceSelector:
+    matchExpressions:
+    - key: istio.io/rev
+      operator: DoesNotExist
+    - key: istio-injection
+      operator: DoesNotExist
+  objectSelector:
+    matchExpressions:
+    - key: sidecar.istio.io/inject
+      operator: NotIn
+      values:
+      - "false"
+    - key: istio.io/rev
+      operator: In
+      values:
+      - "{{ .Values.istio.tag }}"
