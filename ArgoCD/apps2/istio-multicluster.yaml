@@ -34,7 +34,7 @@ spec:
  
         - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
           targetRevision: 'main'
-          path: /ServiceMesh/istio-install/{{.metadata.labels.env_name}}/{{.name}}/multicluster
+          path: ServiceMesh/istio-install/{{.metadata.labels.env_name}}/{{.name}}/multicluster
        
         - repoURL: https://istio-release.storage.googleapis.com/charts
           chart: gateway
