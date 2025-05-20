@@ -10,9 +10,9 @@ serviceAccount:
     type: LoadBalancer
     ports:
     - name: status-port
-      port: 15021
+      port: 15020
       protocol: TCP
-      targetPort: 15021
+      targetPort: 15020
     - name: http2
       port: 80
       protocol: TCP

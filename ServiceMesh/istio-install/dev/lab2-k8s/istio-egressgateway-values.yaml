@@ -3,7 +3,7 @@ name: istio-egressgateway
 replicaCount: 2
  
 serviceAccount:
-  name: istio-egressgateway-service-account
+  name: istio-egressgateway-sa
  
 service:
   type: ClusterIP
