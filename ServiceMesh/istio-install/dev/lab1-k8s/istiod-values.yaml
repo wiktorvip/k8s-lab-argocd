@@ -6,9 +6,7 @@ replicaCount: 1
 
 resources:
   requests:
-    mem: 1G
-  limits:
-    mem: 1G
+    memory: 1G
 
 cni:
   enabled: true
