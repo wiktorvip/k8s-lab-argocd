@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: gatekeeper
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          # matchLabels:
+          #   env_name: 'dev'
+          matchExpressions:
+            - {key: ingress-nginx, operator: DoesNotExist}            
+ 
+  template:
+    metadata:
+      name: 'gatekeeper-{{.name}}'
+      labels:
+        applicationset: gatekeeper
+        app: 'gatekeeper'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      sources:
+        - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
+          targetRevision: main
+          ref: values
+
+        - repoURL: https://open-policy-agent.github.io/gatekeeper/charts
+          chart: gatekeeper
+          targetRevision: 3.18.2
+          helm:
+            releaseName: gatekeeper
+            valueFiles:
+              - $values/gatekeeper/values/values.yaml
+      destination:
+        server: '{{.server}}'
+        namespace: gatekeeper
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: false
+          selfHeal: true
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+    automated:
+      prune: false
+      selfHeal: true
+

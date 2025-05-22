@@ -1,0 +1,127 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: servicemeshtooling
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+   - matrix:
+      generators:
+      - clusters:
+          selector:
+            matchLabels:
+              env_name: 'dev'
+            matchExpressions:
+              - {key: ingress-nginx, operator: DoesNotExist}
+
+      - list:
+          elements:
+            - appName: kiali-server
+              namespace: istio-system
+              chartName: kiali-server
+              repoUrl: "https://kiali.org/helm-charts"
+              chartType: helm
+              CreateNamespace: false
+              autoSync: false
+              releaseVersion: 2.9.0
+            - appName: kiali-config
+              namespace: istio-system
+              folderName: ServiceMesh/kiali-config
+              chartType: yaml
+              CreateNamespace: false
+              autoSync: false
+              valueFiles:
+                - values.yaml
+  template:
+    metadata:
+      name: '{{.appName}}-{{.name}}'
+      labels:
+        applicationset: servicemeshtooling
+        app: '{{.appName}}'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      destination:
+        server: '{{.server}}'
+        namespace: '{{.namespace}}'
+  templatePatch: |
+    spec:
+    {{- if eq .chartName "kiali-server" }}
+      ignoreDifferences:
+      - group: apps
+        kind: Deployment
+        jqPathExpressions:
+        - '.spec.template.metadata.annotations["checksum/config"]'
+    {{- end }}
+    {{- if .chartName }}
+      sources:
+        - repoURL: '{{.repoUrl | default "XXXX/helm"}}'
+          chart: '{{.chartName}}'
+          path: '{{.appName}}'
+          targetRevision: '{{.releaseVersion}}'
+          helm:
+            releaseName: '{{.appName}}'
+            valueFiles:
+            {{- if .valueFiles}}
+            {{- range $valueFile := .valueFiles }}
+              - {{ $valueFile }}
+            {{- end }}
+            {{- end }}
+            {{- if .folderName }}
+              - $values/{{.folderName}}/values-{{.metadata.labels.env_type}}.yaml
+            {{- end }}
+            {{- if eq .chartName "kiali-server" }}
+                - $values/ServiceMesh/kiali-config/values-{{.metadata.labels.env_name}}.yaml
+            {{- else}}
+                - $values/ServiceMesh/kiali-config/values-{{.metadata.labels.env_name}}.yaml
+            {{- end }}
+        - repoURL: '{{.repoUrl | default "https://github.com/wiktorvip/k8s-lab-argocd"}}'
+          {{- if not .valuesBranch }}
+          targetRevision: 'main'
+          {{- else}}
+          targetRevision: '{{.valuesBranch}}'
+          {{- end }}
+          ref: values
+    {{- else }}
+      source:
+        {{- if .folderName }}
+        path: {{.folderName}}
+        {{- end }}
+        repoURL: '{{.repoUrl | default "https://github.com/wiktorvip/k8s-lab-argocd"}}'
+        {{- if eq .chartType "helm" }}
+        helm:
+          values: |
+            kubernetesCluster: {{.name}}
+          {{- if not .chartName }}
+          valueFiles:
+          {{- if .valueFiles}}
+          {{- range $valueFile := .valueFiles }}
+            - {{ $valueFile }}
+          {{- end }}
+          {{- end }}
+            - $values/ServiceMesh/kiali-config/values-{{.metadata.labels.env_name}}.yaml
+          {{- end }}
+        {{- end }}
+        {{- if not .valuesBranch }}
+        {{- if eq .metadata.labels.env_type "nonprod" }}
+        targetRevision: 'main'
+        {{- else}}
+        targetRevision: 'main'
+        {{- end }}
+        {{- else }}
+        targetRevision: '{{.valuesBranch}}'
+        {{- end }}
+      {{- end }}
+      syncPolicy:
+      {{- if eq .metadata.labels.env_type "nonprod" }}
+      {{- if .autoSync }}
+        automated:
+          prune: {{.prune}}
+          selfHeal: {{.selfHeal}}
+      {{- end }}
+      {{- end }}
+        syncOptions:
+          - CreateNamespace={{.CreateNamespace}}
+ 

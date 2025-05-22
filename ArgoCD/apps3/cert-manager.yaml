@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cert-manager
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          # matchLabels:
+          #   env_name: 'dev'
+          matchExpressions:
+            - {key: ingress-nginx, operator: DoesNotExist}            
+ 
+  template:
+    metadata:
+      name: 'cert-manager-{{.name}}'
+      labels:
+        applicationset: cert-manager
+        app: 'cert-manager'
+        environment: '{{.metadata.labels.env_name}}'
+        #region: '{{.metadata.labels.location}}'
+    spec:
+      project: "default"
+      sources:
+        - repoURL: https://github.com/wiktorvip/k8s-lab-argocd
+          targetRevision: main
+          ref: values
+
+        - repoURL: https://charts.jetstack.io
+          chart: cert-manager
+          targetRevision: v1.14.7
+          helm:
+            releaseName: cert-manager
+            valueFiles:
+              - $values/cert-manager/values/values.yaml
+      destination:
+        server: '{{.server}}'
+        namespace: cert-manager
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: false
+          selfHeal: true
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+    automated:
+      prune: false
+      selfHeal: true
+
