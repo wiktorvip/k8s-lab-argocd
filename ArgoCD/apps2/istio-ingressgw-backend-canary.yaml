@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: istio-ingressgw-backend
+  name: istio-ingressgw-backend-canary
   namespace: argocd
 spec:
   goTemplate: true
@@ -18,7 +18,7 @@ spec:
 
   template:
     metadata:
-      name: 'istio-ingressgw-backend-{{.name}}'
+      name: 'istio-ingressgw-backend-canary-{{.name}}'
       labels:
         applicationset: istio-ingressgw-backend
         app: 'istio-install'
