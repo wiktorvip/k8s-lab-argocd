@@ -1,9 +1,9 @@
-name: istio-ingressgateway-backend
+name: istio-ingressgateway-backend-canary
  
 replicaCount: 2
  
 serviceAccount:
-  name: istio-ingressgateway-backend-sa
+  name: istio-ingressgateway-canary-backend-sa
 
 service:
   type: LoadBalancer
@@ -27,8 +27,9 @@ autoscaling:
   maxReplicas: 5
  
 labels:
-  app: istio-ingressgateway-backend
-  istio: ingressgateway-backend
+  app: istio-ingressgateway-backend-canary
+  istio: ingressgateway-backend-canary
+  istio.io/rev: {{.values.istioRevision}}
  
  
  
