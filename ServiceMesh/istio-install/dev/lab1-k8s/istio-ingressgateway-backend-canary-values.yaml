@@ -29,7 +29,6 @@ autoscaling:
 labels:
   app: istio-ingressgateway-backend-canary
   istio: ingressgateway-backend-canary
-  istio.io/rev: {{.values.istioRevision}}
  
  
  
