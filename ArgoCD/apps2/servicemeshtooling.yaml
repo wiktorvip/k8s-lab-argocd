@@ -72,12 +72,7 @@ spec:
             {{- if .folderName }}
               - $values/{{.folderName}}/values-{{.metadata.labels.env_type}}.yaml
             {{- end }}
-            {{- if eq .chartName "kiali-server" }}
-                - $values/ServiceMesh/kiali-config/values-{{.metadata.labels.env_name}}.yaml
-            {{- else}}
-                - $values/ServiceMesh/kiali-config/values-{{.metadata.labels.env_name}}.yaml
-            {{- end }}
-        - repoURL: '{{.repoUrl | default "https://github.com/wiktorvip/k8s-lab-argocd"}}'
+        - repoURL: '{{.repoUrl_values | default "https://github.com/wiktorvip/k8s-lab-argocd"}}'
           {{- if not .valuesBranch }}
           targetRevision: 'main'
           {{- else}}
